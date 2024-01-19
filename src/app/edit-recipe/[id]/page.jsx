@@ -1,82 +1,88 @@
 'use client';
-import React, { useRef, useState } from 'react';
-import Multiselect from 'multiselect-react-dropdown'; // react component for multiselect
-import ingredients from '../../../ingredients.json';
+import Multiselect from 'multiselect-react-dropdown';
+import React, { useEffect, useState } from 'react';
+import ingredients from '../../../../ingredients.json';
 
-const InsertRecipe = () => {
-	const ingredientsLabel = ingredients.map((label) => label.label); // making an array of ingredients label
+const page = ({ params }) => {
+	const ingredientsLabel = ingredients.map((label) => label.label);
 	const [selectedItem, setSelectedItem] = useState({
 		option: ingredientsLabel,
 		selectedIngredients: [],
-	}); // state for multiselect, where selected items will be stored.
+	});
+	const [singleRecipe, setSingleRecipe] = useState({}); //state for storing single recipe
 
-	const selectedValues = useRef(); // for accessing the multiselect
+	useEffect(() => {
+		fetch(`http://localhost:5000/recipe/${params.id}`)
+			.then((res) => res.json())
+			.then((data) => setSingleRecipe(data));
+	}, []); // getting the recipe
 
 	const handleSelect = (selectedIngredients) => {
 		setSelectedItem((previousValue) => ({
 			...previousValue,
 			selectedIngredients: selectedIngredients,
 		}));
-	}; // this function will handle the multi-selection
+	};
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		const form = e.target;
-		const title = form.title.value;
-		const ingredients = selectedItem.selectedIngredients;
-		const instruction = form.instruction.value;
-		const optionalMedia = form.optionalMedia.value;
+		const updatedTitle = form.title.value;
+		const updatedIngredients = selectedItem.selectedIngredients;
+		const updatedInstruction = form.instruction.value;
+		const updatedOptionalMedia = form.optionalMedia.value;
 
 		// Regex patterns
 		const titleRegex = /^[a-zA-Z\s]+$/;
 		const instructionRegex = /^[\s\S]+$/;
 
-		if (!titleRegex.test(title)) {
+		if (!titleRegex.test(updatedTitle)) {
 			alert('Title must contain only letters (A-Z or a-z)');
 			return;
 		} // title pattern validation
 
-		if (!title || ingredients.length === 0 || !instruction) {
+		if (
+			!updatedTitle ||
+			updatedIngredients.length === 0 ||
+			!updatedInstruction
+		) {
 			alert(
 				'Please fill in all required fields (Title, Ingredients, Instruction)'
 			);
 			return;
 		} // all the field with ingredients validation
 
-		if (!instructionRegex.test(instruction)) {
+		if (!instructionRegex.test(updatedInstruction)) {
 			alert('Instruction must contain only letters and numbers');
 			return;
 		} // instruction pattern validation
 
-		const newRecipe = {
-			title,
-			ingredients,
-			instruction,
-			optionalMedia,
-		}; // collect all the data and made an object to send to the database
+		const updatedRecipe = {
+			updatedTitle,
+			updatedIngredients,
+			updatedInstruction,
+			updatedOptionalMedia,
+		};
 
-		fetch('http://localhost:5000/recipes', {
-			method: 'POST',
+		fetch(`http://localhost:5000/recipe/${params.id}`, {
+			method: 'PUT',
 			headers: {
 				'content-type': 'application/json',
 			},
-			body: JSON.stringify(newRecipe),
+			body: JSON.stringify(updatedRecipe),
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				if (data.insertedId) {
-					alert('Recipe Added Succesfully!');
-					form.reset();
-					selectedValues.current.resetSelectedValues(); // reset the multiselect
+				if (data.modifiedCount > 0) {
+					alert('Updated Successfully');
 				}
-			}); // inserting the data into the database
+			}); // updating the recipe
 	};
-
 	return (
 		<React.Fragment>
 			<div className="container mx-auto">
 				<h2 className="text-center font-bold text-3xl mt-5">
-					Insert New Recipe
+					Edit Recipe : {singleRecipe.title}
 				</h2>
 				<form className="max-w-lg mx-auto mt-8" onSubmit={handleSubmit}>
 					<label className="block mb-2 text-lg font-semibold">
@@ -85,46 +91,49 @@ const InsertRecipe = () => {
 					<input
 						type="text"
 						name="title"
+						defaultValue={singleRecipe.title}
 						required
 						className="w-full p-2 mb-4 border border-gray-300 rounded"
-						placeholder="title for the recipe"
+						placeholder="edit title for the recipe"
 					/>
 
 					<label className="block mb-2 text-lg font-semibold">
 						Ingredients:
 					</label>
 					<Multiselect
+						selectedValues={singleRecipe.ingredients}
 						isObject={false}
 						options={selectedItem.option}
 						onSelect={handleSelect}
-						ref={selectedValues}
-						placeholder="select ingredients"
+						placeholder="edit ingredients"
 					/>
 					<label className="block mb-2 text-lg font-semibold">
 						Instruction:
 					</label>
 					<textarea
 						name="instruction"
+						defaultValue={singleRecipe.instruction}
 						required
 						className="w-full p-2 mb-4 border border-gray-300 rounded"
-						placeholder="instruction for the recipe"
+						placeholder="edit instruction for the recipe"
 					></textarea>
 
 					<label className="block mb-2 text-lg font-semibold">
-						&#40;Optional&#41; Image/Video:
+						Optional Image/Video:
 					</label>
 					<input
+						defaultValue={singleRecipe.optionalMedia}
 						type="text"
 						name="optionalMedia"
 						className="w-full p-2 mb-4 border border-gray-300 rounded"
-						placeholder="insert Image/video url (optional)"
+						placeholder="edit Image/video url (optional)"
 					/>
 
 					<button
 						type="submit"
 						className="w-full py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
 					>
-						Create Recipe
+						Update Recipe
 					</button>
 				</form>
 			</div>
@@ -132,4 +141,4 @@ const InsertRecipe = () => {
 	);
 };
 
-export default InsertRecipe;
+export default page;
