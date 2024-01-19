@@ -13,25 +13,27 @@ const HomePage = () => {
 	const [searchName, setSearchName] = useState('');
 
 	useEffect(() => {
-		fetch('http://localhost:5000/allrecipes')
+		fetch('https://recipe-next-server-chi.vercel.app/allrecipes')
 			.then((res) => res.json())
 			.then((data) => setAllRecipes(data));
 	}, []);
 
 	const handleSearch = () => {
 		if (searchName) {
-			fetch(`http://localhost:5000/search-recipe/${searchName}`)
+			fetch(
+				`https://recipe-next-server-chi.vercel.app/search-recipe/${searchName}`
+			)
 				.then((res) => res.json())
 				.then((data) => setAllRecipes(data));
 		} else {
-			fetch('http://localhost:5000/allrecipes')
+			fetch('https://recipe-next-server-chi.vercel.app/allrecipes')
 				.then((res) => res.json())
 				.then((data) => setAllRecipes(data));
 		}
 	}; // this function handles searching
 
 	const handleDelete = (id) => {
-		fetch(`http://localhost:5000/recipe/${id}`, {
+		fetch(`https://recipe-next-server-chi.vercel.app/recipe/${id}`, {
 			method: 'DELETE',
 		})
 			.then((res) => res.json())

@@ -55,7 +55,7 @@ const InsertRecipe = () => {
 			optionalMedia,
 		}; // collect all the data and made an object to send to the database
 
-		fetch('http://localhost:5000/recipes', {
+		fetch('https://recipe-next-server-chi.vercel.app/recipes', {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json',

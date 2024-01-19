@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 const page = ({ params }) => {
 	const [recipe, setRecipe] = useState({});
 	useEffect(() => {
-		fetch(`http://localhost:5000/recipe/${params.id}`)
+		fetch(`https://recipe-next-server-chi.vercel.app/recipe/${params.id}`)
 			.then((res) => res.json())
 			.then((data) => setRecipe(data));
 	}, []); // getting the single recipe to show in ui

@@ -12,7 +12,7 @@ const page = ({ params }) => {
 	const [singleRecipe, setSingleRecipe] = useState({}); //state for storing single recipe
 
 	useEffect(() => {
-		fetch(`http://localhost:5000/recipe/${params.id}`)
+		fetch(`https://recipe-next-server-chi.vercel.app/recipe/${params.id}`)
 			.then((res) => res.json())
 			.then((data) => setSingleRecipe(data));
 	}, []); // getting the recipe
@@ -64,7 +64,7 @@ const page = ({ params }) => {
 			updatedOptionalMedia,
 		};
 
-		fetch(`http://localhost:5000/recipe/${params.id}`, {
+		fetch(`https://recipe-next-server-chi.vercel.app/recipe/${params.id}`, {
 			method: 'PUT',
 			headers: {
 				'content-type': 'application/json',
